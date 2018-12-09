@@ -1,6 +1,5 @@
-package gameplay;
+package board;
 
-import com.sun.rowset.internal.Row;
 import players.Player;
 
 import java.util.ArrayList;

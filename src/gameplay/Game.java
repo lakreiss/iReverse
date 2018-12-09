@@ -1,5 +1,6 @@
 package gameplay;
 
+import board.Board;
 import players.HumanPlayer;
 import players.Player;
 

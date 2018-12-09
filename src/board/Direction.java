@@ -1,4 +1,4 @@
-package gameplay;
+package board;
 
 /**
  * Created by liamkreiss on 12/9/18.

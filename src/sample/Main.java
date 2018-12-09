@@ -1,9 +1,6 @@
 package sample;
 
-import gameplay.Board;
 import gameplay.Game;
-import players.HumanPlayer;
-import players.Player;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,7 +8,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.FileNotFoundException;
-import java.util.Scanner;
 
 public class Main extends Application {
 

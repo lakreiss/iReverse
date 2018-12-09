@@ -1,4 +1,4 @@
-package gameplay;
+package board;
 
 import players.Player;
 

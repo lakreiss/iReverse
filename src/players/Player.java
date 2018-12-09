@@ -1,6 +1,6 @@
 package players;
 
-import gameplay.Board;
+import board.Board;
 
 import java.awt.Color;
 
