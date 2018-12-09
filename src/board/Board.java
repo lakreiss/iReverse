@@ -45,6 +45,17 @@ public class Board {
         }
     }
 
+    public Board(Board curBoard) {
+        this.board = new Tile[BOARD_SIZE][BOARD_SIZE];
+        this.p1 = new Player(curBoard.getP1());
+        this.p2 = new Player(curBoard.getP2());
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
+                this.board[row][col] = new Tile(curBoard.getTile(getIndexFromRowCol(row, col)));
+            }
+        }
+    }
+
     public Board(Player[] players, Scanner file) {
         this.board = new Tile[BOARD_SIZE][BOARD_SIZE];
         this.p1 = players[0];
@@ -219,6 +230,18 @@ public class Board {
 
     public static int getColFromIndex(int index) {
         return index % BOARD_SIZE;
+    }
+
+    public Player getOpponent(Player p) {
+        return p1.equals(p) ? p2 : p1;
+    }
+
+    public Player getP1() {
+        return p1;
+    }
+
+    public Player getP2() {
+        return p2;
     }
 
     public Player getWinner() {

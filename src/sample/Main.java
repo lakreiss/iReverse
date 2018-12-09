@@ -21,7 +21,8 @@ public class Main extends Application {
 
     //code for testing
     public static void main(String[] args) throws FileNotFoundException {
-        Game game = new Game("almost_full_board.txt");
+//        Game game = new Game("almost_full_board.txt");
+        Game game = new Game();
         game.startGame();
     }
 

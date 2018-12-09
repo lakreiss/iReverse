@@ -2,7 +2,7 @@ package players;
 
 import board.Board;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  * Created by liamkreiss on 12/8/18.
@@ -30,8 +30,17 @@ public class Player {
         }
     }
 
+    public Player(Player curPlayer) {
+        this.name = curPlayer.getName();
+        this.color = curPlayer.getColor();
+    }
+
     public String getName() {
         return this.name;
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     //returns the index of the move the player wants to make

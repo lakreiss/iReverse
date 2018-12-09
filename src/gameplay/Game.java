@@ -1,6 +1,8 @@
 package gameplay;
 
 import board.Board;
+import players.ComputerPlayer;
+import players.Difficulty;
 import players.HumanPlayer;
 import players.Player;
 
@@ -17,14 +19,18 @@ public class Game {
 
     public Game() {
         Scanner console = new Scanner(System.in);
-        this.players = new Player[]{new HumanPlayer(true, console), new HumanPlayer(false, console)};
+        this.players = new Player[]{
+                new HumanPlayer(true, console),
+                new ComputerPlayer(false, Difficulty.HARD)};
         this.gameboard = new Board(players);
         System.out.println(gameboard.toString());
     }
 
     public Game(String fileName) throws FileNotFoundException {
         Scanner console = new Scanner(System.in);
-        this.players = new Player[]{new HumanPlayer(true, console), new HumanPlayer(false, console)};
+        this.players = new Player[]{
+                new HumanPlayer(true, console),
+                new HumanPlayer(false, console)};
         Scanner file = new Scanner(new File("board_states/" + fileName));
         this.gameboard = new Board(players, file);
         System.out.println(gameboard.toString());
