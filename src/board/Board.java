@@ -24,17 +24,17 @@ public class Board {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 if (i == (BOARD_SIZE / 2) - 1) {
                     if (j == (BOARD_SIZE / 2) - 1) {
-                        board[i][j] = new Tile(getIndexFromRowCol(i, j), p1);
-                    } else if (j == (BOARD_SIZE / 2)) {
                         board[i][j] = new Tile(getIndexFromRowCol(i, j), p2);
+                    } else if (j == (BOARD_SIZE / 2)) {
+                        board[i][j] = new Tile(getIndexFromRowCol(i, j), p1);
                     } else {
                         board[i][j] = new Tile(getIndexFromRowCol(i, j));
                     }
                 } else if (i == (BOARD_SIZE / 2)) {
                     if (j == (BOARD_SIZE / 2) - 1) {
-                        board[i][j] = new Tile(getIndexFromRowCol(i, j), p2);
-                    } else if (j == (BOARD_SIZE / 2)) {
                         board[i][j] = new Tile(getIndexFromRowCol(i, j), p1);
+                    } else if (j == (BOARD_SIZE / 2)) {
+                        board[i][j] = new Tile(getIndexFromRowCol(i, j), p2);
                     } else {
                         board[i][j] = new Tile(getIndexFromRowCol(i, j));
                     }
@@ -249,21 +249,10 @@ public class Board {
     }
 
     public Player getWinner() {
-        int p1Pieces = 0, p2Pieces = 0;
-        for (Tile[] row : board) {
-            for (Tile t : row) {
-                if (t.getOccupied()) {
-                    if (t.getOwner().equals(this.p1)) {
-                        p1Pieces += 1;
-                    } else {
-                        p2Pieces += 1;
-                    }
-                }
-            }
-        }
-        if (p1Pieces > p2Pieces) {
+        int[] pieceCounts = getPieceCounts();
+        if (pieceCounts[0] > pieceCounts[1]) {
             return this.p1;
-        } else if (p1Pieces < p2Pieces) {
+        } else if (pieceCounts[0] < pieceCounts[1]) {
             return this.p2;
         } else {
             return null;
@@ -271,7 +260,7 @@ public class Board {
     }
 
     public String toString() {
-        String output = " |";
+        String output = "\n |";
         for (int i = 0; i < BOARD_SIZE; i++) {
             output += i + "|";
         }
@@ -293,4 +282,19 @@ public class Board {
         return output;
     }
 
+    public int[] getPieceCounts() {
+        int p1Pieces = 0, p2Pieces = 0;
+        for (Tile[] row : board) {
+            for (Tile t : row) {
+                if (t.getOccupied()) {
+                    if (t.getOwner().equals(this.p1)) {
+                        p1Pieces += 1;
+                    } else {
+                        p2Pieces += 1;
+                    }
+                }
+            }
+        }
+        return new int[]{p1Pieces, p2Pieces};
+    }
 }

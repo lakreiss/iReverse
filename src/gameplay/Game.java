@@ -13,14 +13,23 @@ import java.util.Scanner;
 public class Game {
     private Player[] players;
     private Board gameboard;
+    private boolean showText = true;
 
-    public Game() {
+    public Game(boolean humanFirst) {
         Scanner console = new Scanner(System.in);
-        this.players = new Player[]{
-                new HumanPlayer(true, console),
-                new HardComputer(false)};
+        if (humanFirst) {
+            this.players = new Player[]{
+                    new HumanPlayer(true, console),
+                    new HardComputer(false)};
+        } else {
+            this.players = new Player[]{
+                    new HardComputer(true),
+                    new HumanPlayer(false, console)};
+        }
         this.gameboard = new Board(players);
-        System.out.println(gameboard.toString());
+        if (showText) {
+            System.out.println(gameboard.toString());
+        }
     }
 
     public Game(String fileName) throws FileNotFoundException {
@@ -56,25 +65,57 @@ public class Game {
 //        System.out.println(gameboard.toString());
     }
 
+    public Game(Player p1, Player p2, boolean showText) {
+        this.players = new Player[]{p1, p2};
+        this.gameboard = new Board(players);
+        this.showText = showText;
+        if (showText) {
+            System.out.println(gameboard.toString());
+        }
+    }
+
     public Player startGame() {
         boolean p1turn = true;
         Player activePlayer = players[0];
         boolean moveSucceeded;
-        boolean gameOver = gameboard.getValidMoves(activePlayer).size() == 0;
+        boolean gameOver = false;
+        if (gameboard.getValidMoves(activePlayer).size() == 0) {
+            if (gameboard.getValidMoves(gameboard.getOpponent(activePlayer)).size() == 0) {
+                gameOver = true;
+            } else {
+                activePlayer = gameboard.getOpponent(activePlayer);
+                p1turn = !p1turn;
+            }
+        }
         while (!gameOver) {
             if (gameboard.makeMove(activePlayer, activePlayer.getMove(gameboard))) {
                 p1turn = !p1turn;
                 activePlayer = p1turn ? players[0] : players[1];
-                System.out.println(gameboard.toString());
-                gameOver = gameboard.getValidMoves(activePlayer).size() == 0;
+                if (showText) {
+                    System.out.println(gameboard.toString());
+                    int[] pieceCounts = gameboard.getPieceCounts();
+                    System.out.printf("CURRENT SCORE\nBlack [%d] - [%d] White\n\n", pieceCounts[0], pieceCounts[1]);
+                }
+                if (gameboard.getValidMoves(activePlayer).size() == 0) {
+                    if (gameboard.getValidMoves(gameboard.getOpponent(activePlayer)).size() == 0) {
+                        gameOver = true;
+                    } else {
+                        activePlayer = gameboard.getOpponent(activePlayer);
+                        p1turn = !p1turn;
+                    }
+                }
             }
         }
         Player winner = gameboard.getWinner();
         if (winner == null) {
-//            System.out.println("It's a tie!");
+            if (showText) {
+                System.out.println("It's a tie!");
+            }
             return null;
         } else {
-//            System.out.println("Player " + winner.getName() + " wins!");
+            if (showText) {
+                System.out.println("Player " + winner.getName() + " wins!");
+            }
             return winner;
         }
     }

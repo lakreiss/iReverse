@@ -1,6 +1,7 @@
 package mains;
 
 import gameplay.Game;
+import gameplay.GeneticLearning;
 import gameplay.PositionEvaluator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -27,14 +28,22 @@ public class Main extends Application {
     public static void main(String[] args) throws FileNotFoundException {
 //        Game game = new Game("almost_full_board.txt");
 
-//        Game game = new Game();
-//        game.startGame();
+        Game game = new Game(false);
+        game.startGame();
 
-        PositionEvaluator pe = new PositionEvaluator("all_black_board.txt");
-        PositionEvaluator pe2 = new PositionEvaluator("all_black_board.txt", true);
-        PositionEvaluator pe3 = new PositionEvaluator("all_black_board.txt", false);
+//        PositionEvaluator pe = new PositionEvaluator("all_black_board.txt");
+//        PositionEvaluator pe2 = new PositionEvaluator("all_black_board.txt", true);
+//        PositionEvaluator pe3 = new PositionEvaluator("all_black_board.txt", false);
 
-//        GeneticLearning gs = new GeneticLearning(20, 100);
+//        double[][] startingWeights = new double[][]{
+//                {+0.601, +0.245, -0.693, +0.623, -0.932, -0.330, -0.273, -0.164, -0.749, +0.281, -1.349,
+//                        +0.386, -0.675, -0.485, +0.355, +1.237, -0.377, +0.489, -1.031, -0.126, +1.044,
+//                        +1.114, -0.407, +0.250, +0.313, +0.143, +0.535, -0.235, -1.832, +0.539},
+//                {+0.522, +0.199, -0.892, +0.517, -0.932, -0.397, -0.776, -0.164, -0.839, +0.493, -1.247,
+//                        +0.106, -0.880, -0.485, +0.304, +1.237, -0.264, +0.489, -1.031, -0.282, +0.832,
+//                        +1.124, -0.407, +0.248, +0.371, +0.143, +0.462, -0.139, -1.449, +0.539}};
+//
+//        GeneticLearning gs = new GeneticLearning(20, 50, startingWeights);
     }
 
 

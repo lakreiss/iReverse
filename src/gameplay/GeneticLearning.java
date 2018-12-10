@@ -23,10 +23,20 @@ public class GeneticLearning {
         this.numberOfComputers = numberOfComputers;
         this.numberOfRounds = numberOfRounds;
 
-        run();
+        runNewLearningSet();
     }
 
-    private void run() {
+    //Genetic Learning where we begin with two sets of weights
+    public GeneticLearning(int numberOfComputers, int numberOfRounds, double[][] weights) throws FileNotFoundException {
+        this.ps = new PrintStream(new File("round_robin/" + System.currentTimeMillis()));
+        this.r = new Random();
+        this.numberOfComputers = numberOfComputers;
+        this.numberOfRounds = numberOfRounds;
+
+        runNewLearningSet(weights);
+    }
+
+    private void runNewLearningSet() {
         double[][] computerWeights = makeComputerWeights(r,numberOfComputers);
         int counter = 0;
 
@@ -80,6 +90,76 @@ public class GeneticLearning {
         }
     }
 
+    private void runNewLearningSet(double[][] startingWeights) {
+        double[][] computerWeights = new double[numberOfComputers][30];
+        computerWeights[0] = startingWeights[0];
+        computerWeights[1] = startingWeights[1];
+
+        for (int i = 2; i < numberOfComputers - 5; i++) {
+            if (i % 2 == 0) {
+                computerWeights[i] = modify(startingWeights[0], r);
+            } else {
+                computerWeights[i] = modify(startingWeights[1], r);
+            }
+        }
+
+        double[][] newComputerWeights = makeComputerWeights(r, 5);
+
+        for (int i = 0; i < 5; i++) {
+            computerWeights[i + numberOfComputers - 5] = newComputerWeights[i];
+        }
+        int counter = 0;
+
+        while (counter < numberOfRounds) {
+            counter++;
+            double[] results = getResults(computerWeights);
+
+            System.out.println();
+            for (int i = 0; i < results.length; i++) {
+                System.out.println("Computer " + i + ": " + results[i] + " points");
+            }
+
+            double bestResultScore = -1, secondBestResultScore = -1;
+            int bestResult = -1, secondBestResult = -1;
+            for (int i = 0; i < results.length; i++) {
+                if (results[i] > bestResultScore) {
+                    secondBestResultScore = bestResultScore;
+                    secondBestResult = bestResult;
+                    bestResult = i;
+                    bestResultScore = results[i];
+                } else if (results[i] > secondBestResultScore) {
+                    secondBestResultScore = results[i];
+                    secondBestResult = i;
+                }
+            }
+
+            double[] bestResultWeights = computerWeights[bestResult];
+            double[] secondBestResultWeights = computerWeights[secondBestResult];
+
+            ps.println();
+
+            ps.println("Computer 1: " + weightsToString(bestResultWeights));
+            ps.println("Computer 2: " + weightsToString(secondBestResultWeights));
+
+            computerWeights[0] = bestResultWeights;
+            computerWeights[1] = secondBestResultWeights;
+
+            for (int i = 2; i < numberOfComputers - 5; i++) {
+                if (i % 2 == 0) {
+                    computerWeights[i] = modify(bestResultWeights, r);
+                } else {
+                    computerWeights[i] = modify(secondBestResultWeights, r);
+                }
+            }
+
+            newComputerWeights = makeComputerWeights(r, 5);
+
+            for (int i = 0; i < 5; i++) {
+                computerWeights[i + numberOfComputers - 5] = newComputerWeights[i];
+            }
+        }
+    }
+
     private String weightsToString(double[] resultWeights) {
         String output = "[";
         output += String.format("%+.3f", resultWeights[0]);
@@ -119,7 +199,7 @@ public class GeneticLearning {
                 if (i != j) {
                     Player p1 = new HardComputer(true, computerWeights[i]);
                     Player p2 = new HardComputer(false, computerWeights[j]);
-                    Game game = new Game(p1, p2);
+                    Game game = new Game(p1, p2, false);
                     Player winner = game.startGame();
                     if (winner == null) {
                         results[i] += 0.5;

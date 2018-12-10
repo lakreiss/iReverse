@@ -13,20 +13,11 @@ public class Player {
 
     public Player(boolean firstPlayer) {
         if (firstPlayer) {
-            this.name = "W";
-            this.color = Color.WHITE;
-        } else {
             this.name = "B";
             this.color = Color.BLACK;
-        }
-    }
-
-    public Player(String name, boolean firstPlayer) {
-        this.name = name;
-        if (firstPlayer) {
-            this.color = Color.WHITE;
         } else {
-            this.color = Color.BLACK;
+            this.name = "W";
+            this.color = Color.WHITE;
         }
     }
 

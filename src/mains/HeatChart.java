@@ -34,15 +34,21 @@ public class HeatChart extends Application {
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        double[] weights = new double[]{1.141, -0.544, 1.932, 1.170, -0.620, 0.470, -1.112, 0.140,
-                1.414, 0.509, -0.129, -0.098, 0.346, -0.587, -0.513, 0.582, -0.440, -0.393, 0.402, -0.093,
-                0.637, 0.978, 0.541, 0.157, 1.508, -0.296, -0.083, 0.890, 0.477, -0.133};
+//        double[] weights = new double[]{
+//                +0.462, -0.808, +0.568, +0.063, -1.620, +0.691, -0.474, +0.459, +0.468, +0.460,
+//                -0.773, -0.681, -0.601, -0.852, +0.156, +0.660, +0.450, -0.336, -0.594, +0.246, -0.772,
+//                +1.758, +0.137, -0.200, +0.773, +0.122, -0.840, +0.871, -0.039, +0.750};
+        double[] weights = new double[]{
+                +0.601, +0.245, -0.693, +0.623, -0.932, -0.330, -0.273, -0.164, -0.749, +0.281, -1.349,
+                +0.386, -0.675, -0.485, +0.355, +1.237, -0.377, +0.489, -1.031, -0.126, +1.044, +1.114,
+                -0.407, +0.250, +0.313, +0.143, +0.535, -0.235, -1.832, +0.539};
 
+        int whichWeight = 0;
         Board board = new Board(new Player[] {new HardComputer(true), new HardComputer(false)});
-        createHeatChart(theStage, theScene, gc, weights, board);
+        createHeatChart(theStage, theScene, gc, weights, board, whichWeight);
     }
 
-    private void createHeatChart(Stage theStage, Scene theScene, GraphicsContext gc, double[] weights, Board board) {
+    private void createHeatChart(Stage theStage, Scene theScene, GraphicsContext gc, double[] weights, Board board, int whichWeight) {
 
         gc.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
@@ -52,7 +58,7 @@ public class HeatChart extends Application {
             for (int j = 0; j < Board.BOARD_SIZE; j++) {
                 gc.setFill(Color.BLACK);
                 gc.fillRect(i * stepSizeX, j * stepSizeY, stepSizeX, stepSizeY);
-                gc.setFill(getColor(board, weights, i, j, 2));
+                gc.setFill(getColor(board, weights, i, j, whichWeight));
                 gc.fillRect(i * stepSizeX + 1, j * stepSizeY + 1, stepSizeX - 2, stepSizeY - 2);
                 gc.setFill(Color.BLACK);
                 gc.fillText(String.format("%.3f", weights[board.getGameboard()[i][j].getType().getNumVal()]), i * stepSizeX + 10, 17 + j * stepSizeY);

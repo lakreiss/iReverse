@@ -28,9 +28,10 @@ public class HardComputer extends ComputerPlayer{
      */
     double[] weights;
     private final int TILE_TYPES = 10;
-    private final double[] BEST_WEIGHTS = new double[]{1.141, -0.544, 1.932, 1.170, -0.620, 0.470, -1.112, 0.140,
-            1.414, 0.509, -0.129, -0.098, 0.346, -0.587, -0.513, 0.582, -0.440, -0.393, 0.402, -0.093,
-            0.637, 0.978, 0.541, 0.157, 1.508, -0.296, -0.083, 0.890, 0.477, -0.133};
+    private final double[] BEST_WEIGHTS = new double[]{
+            +0.601, +0.245, -0.693, +0.623, -0.932, -0.330, -0.273, -0.164, -0.749, +0.281, -1.349,
+            +0.386, -0.675, -0.485, +0.355, +1.237, -0.377, +0.489, -1.031, -0.126, +1.044, +1.114,
+            -0.407, +0.250, +0.313, +0.143, +0.535, -0.235, -1.832, +0.539};
 
     public HardComputer(boolean firstPlayer, double[] weights) {
         super(firstPlayer, Difficulty.HARD);
@@ -42,21 +43,62 @@ public class HardComputer extends ComputerPlayer{
         this.weights = BEST_WEIGHTS;
     }
 
+//    //doesn't look ahead
+//    public int getMove(Board gameboard) {
+//        ArrayList<Integer> validMoves = gameboard.getValidMoves(this);
+//        Board potentialGameboard;
+//        int bestMove = -1;
+//        double bestMoveScore = Integer.MIN_VALUE;
+//        for (int i = 0; i < validMoves.size(); i++) {
+//            potentialGameboard = new Board(gameboard);
+//            potentialGameboard.makeMove(this, validMoves.get(i));
+//
+//            double boardScore = getScore(potentialGameboard);
+//            if (boardScore > bestMoveScore) {
+//                bestMoveScore = boardScore;
+//                bestMove = i;
+//            }
+//        }
+//        return validMoves.get(bestMove);
+//    }
+
+    //looks one full move ahead
     public int getMove(Board gameboard) {
-        ArrayList<Integer> validMoves = gameboard.getValidMoves(this);
-        Board potentialGameboard;
+        Player opponent = gameboard.getOpponent(this);
+        ArrayList<Integer> validMovesForPlayer = gameboard.getValidMoves(this);
+        Board potentialBoardForOpponent;
+        double[] allMoveScores = new double[validMovesForPlayer.size()];
+
+        //MOVE THAT GETS THE HIGHEST VALUE FROM THE FOLLOWING
+        for (int i = 0; i < validMovesForPlayer.size(); i++) {
+            potentialBoardForOpponent = new Board(gameboard);
+            potentialBoardForOpponent.makeMove(this, validMovesForPlayer.get(i));
+            ArrayList<Integer> validMovesForOpponent = potentialBoardForOpponent.getValidMoves(opponent);
+            Board potentialBoardForPlayer;
+            double worstMoveScore = Integer.MAX_VALUE;
+
+            //MOVE THAT GETS THE LOWEST VALUE FROM THE FOLLOWING
+            for (int validMoveForOpponent : validMovesForOpponent) {
+                potentialBoardForPlayer = new Board(potentialBoardForOpponent);
+                potentialBoardForPlayer.makeMove(opponent, validMoveForOpponent);
+                double moveScore = getScore(potentialBoardForPlayer);
+                if (moveScore < worstMoveScore) {
+                    worstMoveScore = moveScore;
+                }
+            }
+            allMoveScores[i] = worstMoveScore;
+        }
+
         int bestMove = -1;
         double bestMoveScore = Integer.MIN_VALUE;
-        for (int i = 0; i < validMoves.size(); i++) {
-            potentialGameboard = new Board(gameboard);
-            potentialGameboard.makeMove(this, validMoves.get(i));
-            double boardScore = getScore(potentialGameboard);
-            if (boardScore > bestMoveScore) {
-                bestMoveScore = boardScore;
+        for (int i = 0; i < allMoveScores.length; i++) {
+            if (allMoveScores[i] > bestMoveScore) {
                 bestMove = i;
+                bestMoveScore = allMoveScores[i];
             }
         }
-        return validMoves.get(bestMove);
+
+        return validMovesForPlayer.get(bestMove);
     }
 
     public double getScore(Board gameboard) {
