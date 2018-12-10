@@ -1,10 +1,7 @@
 package gameplay;
 
 import board.Board;
-import players.ComputerPlayer;
-import players.Difficulty;
-import players.HumanPlayer;
-import players.Player;
+import players.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,7 +18,7 @@ public class Game {
         Scanner console = new Scanner(System.in);
         this.players = new Player[]{
                 new HumanPlayer(true, console),
-                new ComputerPlayer(false, Difficulty.HARD)};
+                new HardComputer(false)};
         this.gameboard = new Board(players);
         System.out.println(gameboard.toString());
     }
@@ -33,10 +30,33 @@ public class Game {
                 new HumanPlayer(false, console)};
         Scanner file = new Scanner(new File("board_states/" + fileName));
         this.gameboard = new Board(players, file);
-        System.out.println(gameboard.toString());
+//        System.out.println(gameboard.toString());
     }
 
-    public void startGame() {
+    public Game(String fileName, HardComputer player, boolean computerIsWhite) throws FileNotFoundException {
+        Scanner console = new Scanner(System.in);
+        if (computerIsWhite) {
+            this.players = new Player[]{
+                    player,
+                    new HumanPlayer(false, console)};
+        } else {
+            this.players = new Player[]{
+                    new HumanPlayer(true, console),
+                    player};
+        }
+
+        Scanner file = new Scanner(new File("board_states/" + fileName));
+        this.gameboard = new Board(players, file);
+//        System.out.println(gameboard.toString());
+    }
+
+    public Game(Player p1, Player p2) {
+        this.players = new Player[]{p1, p2};
+        this.gameboard = new Board(players);
+//        System.out.println(gameboard.toString());
+    }
+
+    public Player startGame() {
         boolean p1turn = true;
         Player activePlayer = players[0];
         boolean moveSucceeded;
@@ -51,9 +71,15 @@ public class Game {
         }
         Player winner = gameboard.getWinner();
         if (winner == null) {
-            System.out.println("It's a tie!");
+//            System.out.println("It's a tie!");
+            return null;
         } else {
-            System.out.println("Player " + winner.getName() + " wins!");
+//            System.out.println("Player " + winner.getName() + " wins!");
+            return winner;
         }
+    }
+
+    public Board getGameboard() {
+        return this.gameboard;
     }
 }

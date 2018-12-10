@@ -103,10 +103,10 @@ public class Board {
                     }
                 }
             }
-            System.out.println("legal move");
+//            System.out.println("legal move");
             return true;
         } else {
-            System.out.println("Illegal move " + p.getName() + ": (" + row + ", " + col + ")");
+//            System.out.println("Illegal move " + p.getName() + ": (" + row + ", " + col + ")");
             return false;
         }
     }
@@ -242,6 +242,10 @@ public class Board {
 
     public Player getP2() {
         return p2;
+    }
+
+    public Tile[][] getGameboard() {
+        return this.board;
     }
 
     public Player getWinner() {

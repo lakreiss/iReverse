@@ -5,5 +5,5 @@ package players;
  */
 public enum Difficulty {
 
-    EASY, HARD;
+    EASY, MEDIUM, HARD;
 }
