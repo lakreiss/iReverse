@@ -13,6 +13,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import players.ComputerPlayer;
+import players.HumanPlayer;
 import players.Player;
 
 import java.util.HashMap;
@@ -25,6 +26,8 @@ public class Display {
     private final Color BACKGROUND_COLOR = Color.GRAY;
     private final Color BOARD_COLOR = Color.BLACK;
     private final Color TILE_COLOR = Color.LIGHTBLUE;
+    private final Color VALID_MOVE_COLOR = Color.YELLOW;
+    private final Color TEXT_COLOR = Color.WHITE;
 
     private int BOARD_SIZE;
     private int SQUARE_SIZE;
@@ -37,7 +40,7 @@ public class Display {
     private Rectangle background;
     private Rectangle[] buttons;
     private Circle[][] gamePieces;
-    private HashMap<String, Boolean> gameInfo= new HashMap<String, Boolean>();
+    private HashMap<String, Boolean> gameInfo = new HashMap<String, Boolean>();
 
 
 //    private int BORDER_OUTLINE_RADIUS = OUTLINE_RADIUS + 1;
@@ -109,9 +112,10 @@ public class Display {
     public void boardScreen(Stage theStage, Scene theScene, GraphicsContext gc, Game game) {
         gc.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         drawBoard(gc, game);
+        drawScore(gc, game, "CURRENT");
         theStage.show();
 
-        if ((game.getP1Turn() && players[0] instanceof ComputerPlayer) ||  (!game.getP1Turn() && players[1] instanceof ComputerPlayer)) {
+        if ((game.getP1Turn() && players[0] instanceof ComputerPlayer) || (!game.getP1Turn() && players[1] instanceof ComputerPlayer)) {
             if (computerWaitsForBoardClickToMove) {
                 HashMap<String, Boolean> clickInfo = new HashMap<>();
                 clickInfo.put("clicked", false);
@@ -195,8 +199,29 @@ public class Display {
 
     private void gameOverScreen(Stage theStage, Scene theScene, GraphicsContext gc, Game game, GameState gs) {
         gc.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        gc.setFill(background.getFill());
-        gc.fillRect(background.getX(), background.getY(), background.getWidth(), background.getHeight());
+        drawBoard(gc, game);
+        drawScore(gc, game, "FINAL");
+        drawWinner(gc, gs);
+
+        //make clicking close the window
+        theScene.setOnMouseClicked(
+                e -> {
+                    theStage.close();
+                }
+        );
+
+    }
+
+    private void drawWinner(GraphicsContext gc, GameState gs) {
+        //write winner
+        gc.setFill(TEXT_COLOR);
+        String winner;
+        if (gs.getWinner() == null) {
+            winner = String.format("It's a Tie!");
+        } else {
+            winner = String.format("%s wins!", gs.getWinner().getName());
+        }
+        gc.fillText(winner, SQUARE_SIZE * 2.5, SQUARE_SIZE);
     }
 
     private void drawBoard(GraphicsContext gc, Game game) {
@@ -205,11 +230,17 @@ public class Display {
         gc.fillRect(background.getX(), background.getY(), background.getWidth(), background.getHeight());
 
         //makes squares
-        for (Rectangle[] row : squares) {
-            for (Rectangle square : row) {
+        Rectangle square;
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                square = squares[i][j];
                 gc.setFill(square.getFill());
                 gc.fillRect(square.getX(), square.getY(), square.getWidth(), square.getHeight());
-                gc.setFill(TILE_COLOR);
+                if (game.getActivePlayer() instanceof HumanPlayer && game.getBoard().getValidMoves(game.getActivePlayer()).contains(game.getBoard().getIndexFromRowCol(i, j))) {
+                    gc.setFill(VALID_MOVE_COLOR);
+                } else {
+                    gc.setFill(TILE_COLOR);
+                }
                 gc.fillRect(square.getX() + 1, square.getY() + 1, square.getWidth() - 2, square.getHeight() - 2);
             }
         }
@@ -228,5 +259,13 @@ public class Display {
                 }
             }
         }
+    }
+
+    private void drawScore(GraphicsContext gc, Game game, String scoreType) {
+        //write score
+        int[] pieceCounts = game.getBoard().getPieceCounts();
+        gc.setFill(TEXT_COLOR);
+        String score = String.format("%s SCORE: Black [%d] - [%d] White\n\n", scoreType.toUpperCase(), pieceCounts[0], pieceCounts[1]);
+        gc.fillText(score, SQUARE_SIZE * 2.5, SQUARE_SIZE / 2);
     }
 }

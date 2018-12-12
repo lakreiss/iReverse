@@ -182,4 +182,8 @@ public class Game {
     public boolean getP1Turn() {
         return this.p1turn;
     }
+
+    public Player getActivePlayer() {
+        return activePlayer;
+    }
 }
