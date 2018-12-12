@@ -13,8 +13,8 @@ public class PositionEvaluator {
 
     public PositionEvaluator(String file, boolean computerGoesFirst) throws FileNotFoundException {
         HardComputer computer = new HardComputer(computerGoesFirst);
-        Game game = new Game(file, computer, computerGoesFirst);
-        double score = computer.getScore(game.getGameboard());
+        Game game = new Game(GameType.TEXT_GAME,file, computer, computerGoesFirst);
+        double score = computer.getScore(game.getTiles());
         String playerName = computerGoesFirst ? "White" : "Black";
 
         System.out.printf("Position at %s has value %#.3f for %s\n", file, score, playerName);
@@ -23,10 +23,10 @@ public class PositionEvaluator {
     public PositionEvaluator(String file) throws FileNotFoundException {
         HardComputer whiteComputer = new HardComputer(true);
         HardComputer blackComputer = new HardComputer(false);
-        Game whiteGame = new Game(file, whiteComputer, true);
-        Game blackGame = new Game(file, blackComputer, false);
-        double whiteScore = whiteComputer.getScore(whiteGame.getGameboard());
-        double blackScore = blackComputer.getScore(blackGame.getGameboard());
+        Game whiteGame = new Game(GameType.AI_GAME, file, whiteComputer, true);
+        Game blackGame = new Game(GameType.AI_GAME, file, blackComputer, false);
+        double whiteScore = whiteComputer.getScore(whiteGame.getTiles());
+        double blackScore = blackComputer.getScore(blackGame.getTiles());
         String winningPlayerName = whiteScore > blackScore ? "White" : "Black";
 
         System.out.printf("Position at %s\nValue for White: %#.3f\nValue for Black: %#.3f\n%s is currently winning\n",

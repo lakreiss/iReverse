@@ -81,7 +81,7 @@ public class HardComputer extends ComputerPlayer{
             for (int validMoveForOpponent : validMovesForOpponent) {
                 potentialBoardForPlayer = new Board(potentialBoardForOpponent);
                 potentialBoardForPlayer.makeMove(opponent, validMoveForOpponent);
-                double moveScore = getScore(potentialBoardForPlayer);
+                double moveScore = getScore(potentialBoardForPlayer.getGameboard());
                 if (moveScore < worstMoveScore) {
                     worstMoveScore = moveScore;
                 }
@@ -101,10 +101,10 @@ public class HardComputer extends ComputerPlayer{
         return validMovesForPlayer.get(bestMove);
     }
 
-    public double getScore(Board gameboard) {
+    public double getScore(Tile[][] gameboard) {
         double score = 0;
         int index;
-        for (Tile[] row : gameboard.getGameboard()) {
+        for (Tile[] row : gameboard) {
             for (Tile t : row) {
                 int typeVal = t.getType().getNumVal();
                 if (t.getOccupied()) {

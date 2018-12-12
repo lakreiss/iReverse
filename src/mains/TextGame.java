@@ -1,8 +1,7 @@
 package mains;
 
 import gameplay.Game;
-import gameplay.GeneticLearning;
-import gameplay.PositionEvaluator;
+import gameplay.GameType;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,7 +13,7 @@ import players.Player;
 import java.io.FileNotFoundException;
 import java.util.Random;
 
-public class Main extends Application {
+public class TextGame extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -28,8 +27,7 @@ public class Main extends Application {
     public static void main(String[] args) throws FileNotFoundException {
 //        Game game = new Game("almost_full_board.txt");
 
-        Game game = new Game(false);
-        game.startGame();
+        Game game = new Game(GameType.TEXT_GAME, false);
 
 //        PositionEvaluator pe = new PositionEvaluator("all_black_board.txt");
 //        PositionEvaluator pe2 = new PositionEvaluator("all_black_board.txt", true);
@@ -60,8 +58,7 @@ public class Main extends Application {
         }
         Player p1 = new HardComputer(true, p1Weights);
         Player p2 = new HardComputer(false, p2Weights);
-        Game game = new Game(p1, p2);
-        game.startGame();
+        Game game = new Game(GameType.TEXT_GAME, p1, p2);
     }
 
 //    String letters = "ABCDEFGHIJ";

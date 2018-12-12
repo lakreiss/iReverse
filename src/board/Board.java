@@ -82,6 +82,7 @@ public class Board {
     public boolean makeMove(Player p, int index) {
         int row = getRowFromIndex(index);
         int col = getColFromIndex(index);
+//        System.out.printf("Player: %s, row: %d col: %d\n", p.getName(), row, col);
         ArrayList<Integer> validMoves = getValidMoves(p);
         if (validMoves.contains(index)) {
             board[row][col].setOwner(p);
@@ -147,8 +148,7 @@ public class Board {
     }
 
     private Tile getTile(int index) {
-        int[] rowCol = getRowColFromIndex(index);
-        return board[rowCol[0]][rowCol[1]];
+        return board[getRowFromIndex(index)][getColFromIndex(index)];
     }
 
     //assumes that the direction is valid for the given index
@@ -187,13 +187,13 @@ public class Board {
         int neighborIndex;
         if (d.equals(Direction.NORTHWEST)) {
             neighborIndex = index - BOARD_SIZE - 1; //NORTHWEST
-            return (neighborIndex > 0 && (neighborIndex + BOARD_SIZE) % BOARD_SIZE != BOARD_SIZE - 1);
+            return (neighborIndex >= 0 && (neighborIndex + BOARD_SIZE) % BOARD_SIZE != BOARD_SIZE - 1);
         } else if (d.equals(Direction.NORTH)) {
             neighborIndex = index - BOARD_SIZE; //NORTH
-            return (neighborIndex > 0);
+            return (neighborIndex >= 0);
         } else if (d.equals(Direction.NORTHEAST)) {
             neighborIndex = index - BOARD_SIZE + 1; //NORTHEAST
-            return (neighborIndex > 0 && neighborIndex % BOARD_SIZE != 0);
+            return (neighborIndex >= 0 && neighborIndex % BOARD_SIZE != 0);
         } else if (d.equals(Direction.WEST)) {
             neighborIndex = index - 1; //WEST
             return ((neighborIndex + BOARD_SIZE) % BOARD_SIZE != BOARD_SIZE - 1);
@@ -217,11 +217,6 @@ public class Board {
     //TODO make sure these work
     public static int getIndexFromRowCol(int row, int col) {
         return BOARD_SIZE * row + col;
-    }
-
-    //TODO make sure these work
-    private static int[] getRowColFromIndex(int index) {
-        return new int[]{index / BOARD_SIZE, index % BOARD_SIZE};
     }
 
     public static int getRowFromIndex(int index) {
@@ -296,5 +291,9 @@ public class Board {
             }
         }
         return new int[]{p1Pieces, p2Pieces};
+    }
+
+    public int getBoardSize() {
+        return BOARD_SIZE;
     }
 }

@@ -2,7 +2,7 @@ package players;
 
 import board.Board;
 
-import java.awt.*;
+import javafx.scene.paint.Color;
 
 /**
  * Created by liamkreiss on 12/8/18.

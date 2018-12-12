@@ -199,7 +199,7 @@ public class GeneticLearning {
                 if (i != j) {
                     Player p1 = new HardComputer(true, computerWeights[i]);
                     Player p2 = new HardComputer(false, computerWeights[j]);
-                    Game game = new Game(p1, p2, false);
+                    Game game = new Game(GameType.AI_GAME, p1, p2);
                     Player winner = game.startGame();
                     if (winner == null) {
                         results[i] += 0.5;
