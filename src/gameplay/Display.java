@@ -1,8 +1,7 @@
 package gameplay;
 
+import board.Board;
 import board.Tile;
-import gameplay.Game;
-import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -12,9 +11,9 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import players.ComputerPlayer;
-import players.HumanPlayer;
-import players.Player;
+import libraries.Alignment;
+import libraries.StringAlignUtils;
+import players.*;
 
 import java.util.HashMap;
 
@@ -23,22 +22,24 @@ import java.util.HashMap;
  */
 public class Display {
     private final int CANVAS_WIDTH = 512, CANVAS_HEIGHT = 512;
+    private final int NUMBER_OF_PLAYER_TYPES = 4;
+    private final Difficulty[] PLAYER_TYPES = new Difficulty[]{Difficulty.HUMAN, Difficulty.EASY, Difficulty.MEDIUM, Difficulty.HARD};
     private final Color BACKGROUND_COLOR = Color.GRAY;
     private final Color BOARD_COLOR = Color.BLACK;
     private final Color TILE_COLOR = Color.LIGHTBLUE;
-    private final Color VALID_MOVE_COLOR = Color.YELLOW;
-    private final Color TEXT_COLOR = Color.WHITE;
+    private final Color BUTTON_COLOR = Color.LIGHTBLUE;
+    private final Color HIGHLIGHTED_COLOR = Color.YELLOW;
+    private final Color TEXT_COLOR = Color.BLACK;
 
     private int BOARD_SIZE;
     private int SQUARE_SIZE;
     private int PIECE_RADIUS;
-    private int OUTLINE_RADIUS;
-    private int INLINE_RADIUS;
+    private int BUTTON_WIDTH;
+    private int BUTTON_HEIGHT;
 
-    private Rectangle[][] squares;
-    private Rectangle[][] squareInlines;
+    private Rectangle[][] tiles;
+    private Rectangle[] menuButtons;
     private Rectangle background;
-    private Rectangle[] buttons;
     private Circle[][] gamePieces;
     private HashMap<String, Boolean> gameInfo = new HashMap<String, Boolean>();
 
@@ -66,23 +67,37 @@ public class Display {
         root.getChildren().add(canvas);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        //change when we improve the gui to ask user who goes first, who to play
-        this.game = new Game(GameType.VISUAL_GAME, false);
-        this.players = game.getPlayers();
+        initializeSizes(Board.BOARD_SIZE);
 
-        initializeSizes();
+        createMenu();
 
-        createBoard();
+        mainMenuScreen(theStage, theScene, gc);
 
-        boardScreen(theStage, theScene, gc, game);
+    }
+
+    //button y starting point is (1/7 + 3/7y) of screen
+    //button x starting point is (1/16 + 5/16x) of screen
+    private void createMenu() {
+        background = new Rectangle(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        background.setFill(BACKGROUND_COLOR);
+
+        int x, y;
+        Rectangle r;
+        menuButtons = new Rectangle[NUMBER_OF_PLAYER_TYPES * 2];
+        for (int i = 0; i < NUMBER_OF_PLAYER_TYPES * 2; i++) {
+            y = (((i / NUMBER_OF_PLAYER_TYPES) * 3) + 1) * (CANVAS_HEIGHT / 7);
+            x = (((i % NUMBER_OF_PLAYER_TYPES) * 5) + 1) * (CANVAS_WIDTH / (5 * NUMBER_OF_PLAYER_TYPES + 1));
+            r = new Rectangle(x, y, BUTTON_WIDTH, BUTTON_HEIGHT);
+            r.setFill(BUTTON_COLOR);
+            menuButtons[i] = r;
+        }
     }
 
     private void createBoard() {
         int x, y;
         Rectangle r;
         Circle c;
-        squares = new Rectangle[BOARD_SIZE][BOARD_SIZE];
-        squareInlines = new Rectangle[BOARD_SIZE][BOARD_SIZE];
+        tiles = new Rectangle[BOARD_SIZE][BOARD_SIZE];
         gamePieces = new Circle[BOARD_SIZE][BOARD_SIZE];
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
@@ -90,27 +105,77 @@ public class Display {
                 y = SQUARE_SIZE * (j + 1);
                 r = new Rectangle(x, y, SQUARE_SIZE, SQUARE_SIZE);
                 r.setFill(BOARD_COLOR);
-                squares[j][i] = r;
+                tiles[j][i] = r;
                 c = new Circle(x + (SQUARE_SIZE / 2), y + (SQUARE_SIZE / 2), PIECE_RADIUS);
                 c.setFill(BOARD_COLOR);
                 gamePieces[j][i] = c;
             }
         }
-
-        background = new Rectangle(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        background.setFill(BACKGROUND_COLOR);
     }
 
-    private void initializeSizes() {
-        this.BOARD_SIZE = game.getBoardSize();
+    private void initializeSizes(int boardSize) {
+        this.BOARD_SIZE = boardSize;
         this.SQUARE_SIZE = CANVAS_WIDTH / 10;
         this.PIECE_RADIUS = (SQUARE_SIZE - 4) / 2;
-        this.OUTLINE_RADIUS = PIECE_RADIUS + 5;
-        this.INLINE_RADIUS = PIECE_RADIUS - 10;
+        this.BUTTON_WIDTH = CANVAS_WIDTH / (NUMBER_OF_PLAYER_TYPES + 1);
+        this.BUTTON_HEIGHT = CANVAS_HEIGHT / 4;
+    }
+
+    private void mainMenuScreen(Stage theStage, Scene theScene, GraphicsContext gc) {
+        Player[] possiblePlayers = new Player[2];
+        possiblePlayers[0] = null;
+        possiblePlayers[1] = null;
+        drawMainMenu(gc, possiblePlayers);
+        theStage.show();
+
+        HashMap<String, Boolean> clickInfo = new HashMap<>();
+        clickInfo.put("clicked", false);
+        clickInfo.put("clickedOnButton", false);
+        int[] buttonClickedOn = new int[1];
+
+        theScene.setOnMouseClicked(
+                e -> {
+                    for (int i = 0; i < BOARD_SIZE; i++) {
+                        if (menuButtons[i].contains(e.getX(), e.getY())) {
+                            clickInfo.put("clicked", true);
+                            clickInfo.put("clickedOnButton", true);
+                            buttonClickedOn[0] = i;
+                        }
+                    }
+
+                    if (clickInfo.get("clicked")) {
+                        if (clickInfo.get("clickedOnButton")) {
+                            Player newPlayer;
+                            boolean playerGoesFirst = buttonClickedOn[0] / NUMBER_OF_PLAYER_TYPES == 0 ? true : false;
+                            if ((buttonClickedOn[0] % NUMBER_OF_PLAYER_TYPES) == Difficulty.HUMAN.getNumber()) {
+                                possiblePlayers[buttonClickedOn[0] / NUMBER_OF_PLAYER_TYPES] = new HumanPlayer(playerGoesFirst);
+                            } else if ((buttonClickedOn[0] % NUMBER_OF_PLAYER_TYPES) == Difficulty.EASY.getNumber()) {
+                                possiblePlayers[buttonClickedOn[0] / NUMBER_OF_PLAYER_TYPES] = new EasyComputer(playerGoesFirst);
+                            } else if ((buttonClickedOn[0] % NUMBER_OF_PLAYER_TYPES) == Difficulty.MEDIUM.getNumber()) {
+                                possiblePlayers[buttonClickedOn[0] / NUMBER_OF_PLAYER_TYPES] = new MediumComputer(playerGoesFirst);
+                            } else if ((buttonClickedOn[0] % NUMBER_OF_PLAYER_TYPES) == Difficulty.HARD.getNumber()) {
+                                possiblePlayers[buttonClickedOn[0] / NUMBER_OF_PLAYER_TYPES] = new HardComputer(playerGoesFirst);
+                            } else {
+                                throw new Error("illegal click");
+                            }
+                            if (possiblePlayers[0] != null && possiblePlayers[1] != null) {
+                                this.game = new Game(GameType.VISUAL_GAME, possiblePlayers[0], possiblePlayers[1]);
+                                this.players = game.getPlayers();
+                                createBoard();
+                                boardScreen(theStage, theScene, gc, game);
+                            } else {
+                                drawMainMenu(gc, possiblePlayers);
+                            }
+                        }
+                    }
+                }
+        );
+
+
+//
     }
 
     public void boardScreen(Stage theStage, Scene theScene, GraphicsContext gc, Game game) {
-        gc.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         drawBoard(gc, game);
         drawScore(gc, game, "CURRENT");
         theStage.show();
@@ -167,7 +232,7 @@ public class Display {
                     e -> {
                         for (int i = 0; i < BOARD_SIZE; i++) {
                             for (int j = 0; j < BOARD_SIZE; j++) {
-                                if (squares[i][j].contains(e.getX(), e.getY())) {
+                                if (tiles[i][j].contains(e.getX(), e.getY())) {
                                     clickInfo.put("clicked", true);
                                     clickInfo.put("clickedOnSquare", true);
                                     clickInfo.put("clickedMainMenu", false);
@@ -193,12 +258,10 @@ public class Display {
                     }
             );
         }
-
-        theStage.show();
     }
 
     private void gameOverScreen(Stage theStage, Scene theScene, GraphicsContext gc, Game game, GameState gs) {
-        gc.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        drawBackground(gc);
         drawBoard(gc, game);
         drawScore(gc, game, "FINAL");
         drawWinner(gc, gs);
@@ -212,6 +275,50 @@ public class Display {
 
     }
 
+    private void drawMainMenu(GraphicsContext gc, Player[] players) {
+        drawBackground(gc);
+        gc.setFill(TEXT_COLOR);
+        for (int i = 1; i <= 2; i++) {
+            gc.setFill(TEXT_COLOR);
+            gc.fillText(String.format("Who is player %d?", i), (CANVAS_WIDTH / 2) - 50, (CANVAS_HEIGHT / 14) * ((6 * i) - 5));
+        }
+        Rectangle button;
+        StringAlignUtils util = new StringAlignUtils(20, Alignment.CENTER);
+        for (int i = 0; i < NUMBER_OF_PLAYER_TYPES * 2; i++) {
+            button = menuButtons[i];
+            gc.setFill(getMenuButtonColor(i, button, players));
+            gc.fillRect(button.getX(), button.getY(), button.getWidth(), button.getHeight());
+            gc.setFill(TEXT_COLOR);
+            gc.fillText(util.format(String.format("%s", PLAYER_TYPES[i % NUMBER_OF_PLAYER_TYPES].toString())), button.getX() + 10, button.getY() + 50);
+        }
+    }
+
+    private Paint getMenuButtonColor(int i, Rectangle button, Player[] players) {
+        Player player = players[i / NUMBER_OF_PLAYER_TYPES];
+        if (player == null) {
+            return button.getFill();
+        } else {
+            if (player instanceof HumanPlayer) {
+                if (Difficulty.HUMAN.getNumber() == (i % NUMBER_OF_PLAYER_TYPES)) {
+                    return HIGHLIGHTED_COLOR;
+                }
+            } else if (player instanceof EasyComputer) {
+                if (Difficulty.EASY.getNumber() == i % NUMBER_OF_PLAYER_TYPES) {
+                    return HIGHLIGHTED_COLOR;
+                }
+            } else if (player instanceof MediumComputer) {
+                if (Difficulty.MEDIUM.getNumber() == i % NUMBER_OF_PLAYER_TYPES) {
+                    return HIGHLIGHTED_COLOR;
+                }
+            } else if (player instanceof HardComputer) {
+                if (Difficulty.HARD.getNumber() == i % NUMBER_OF_PLAYER_TYPES) {
+                    return HIGHLIGHTED_COLOR;
+                }
+            }
+        }
+        return button.getFill();
+    }
+
     private void drawWinner(GraphicsContext gc, GameState gs) {
         //write winner
         gc.setFill(TEXT_COLOR);
@@ -221,23 +328,22 @@ public class Display {
         } else {
             winner = String.format("%s wins!", gs.getWinner().getName());
         }
-        gc.fillText(winner, SQUARE_SIZE * 2.5, SQUARE_SIZE);
+        gc.fillText(winner, SQUARE_SIZE * 2.5, 3 * SQUARE_SIZE / 4);
     }
 
     private void drawBoard(GraphicsContext gc, Game game) {
         //makes background
-        gc.setFill(background.getFill());
-        gc.fillRect(background.getX(), background.getY(), background.getWidth(), background.getHeight());
+        drawBackground(gc);
 
-        //makes squares
+        //makes tiles
         Rectangle square;
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
-                square = squares[i][j];
+                square = tiles[i][j];
                 gc.setFill(square.getFill());
                 gc.fillRect(square.getX(), square.getY(), square.getWidth(), square.getHeight());
                 if (game.getActivePlayer() instanceof HumanPlayer && game.getBoard().getValidMoves(game.getActivePlayer()).contains(game.getBoard().getIndexFromRowCol(i, j))) {
-                    gc.setFill(VALID_MOVE_COLOR);
+                    gc.setFill(HIGHLIGHTED_COLOR);
                 } else {
                     gc.setFill(TILE_COLOR);
                 }
@@ -267,5 +373,14 @@ public class Display {
         gc.setFill(TEXT_COLOR);
         String score = String.format("%s SCORE: Black [%d] - [%d] White\n\n", scoreType.toUpperCase(), pieceCounts[0], pieceCounts[1]);
         gc.fillText(score, SQUARE_SIZE * 2.5, SQUARE_SIZE / 2);
+    }
+
+    private void drawBackground(GraphicsContext gc) {
+        //clears background
+        gc.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        //makes background
+        gc.setFill(background.getFill());
+        gc.fillRect(background.getX(), background.getY(), background.getWidth(), background.getHeight());
     }
 }

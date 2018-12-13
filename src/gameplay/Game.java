@@ -86,6 +86,12 @@ public class Game {
         if (showText) {
             System.out.println(gameboard.toString());
         }
+
+        if (gameType.equals(GameType.VISUAL_GAME)) {
+            startVisualGame();
+        } else {
+            startTextGame();
+        }
     }
 
     public Player startGame() {

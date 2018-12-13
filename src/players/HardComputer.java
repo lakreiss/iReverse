@@ -34,12 +34,12 @@ public class HardComputer extends ComputerPlayer{
             -0.407, +0.250, +0.313, +0.143, +0.535, -0.235, -1.832, +0.539};
 
     public HardComputer(boolean firstPlayer, double[] weights) {
-        super(firstPlayer, Difficulty.HARD);
+        super(firstPlayer);
         this.weights = weights;
     }
 
     public HardComputer(boolean firstPlayer) {
-        super(firstPlayer, Difficulty.HARD);
+        super(firstPlayer);
         this.weights = BEST_WEIGHTS;
     }
 

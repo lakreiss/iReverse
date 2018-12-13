@@ -10,6 +10,11 @@ import java.util.Scanner;
 public class HumanPlayer extends Player {
     private Scanner console;
 
+    //for visual games
+    public HumanPlayer (boolean firstPlayer) {
+        super(firstPlayer);
+    }
+
     public HumanPlayer(boolean firstPlayer, Scanner console) {
         super(firstPlayer);
         this.console = console;
